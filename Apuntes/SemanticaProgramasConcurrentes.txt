@@ -1,0 +1,50 @@
+-Exclusion mutua: los dos procesos en el await no pueden ser a la vez los dos true.
+
+-Ausencia de bloqueo: !G1 && !G2 == False
+
+Ejemplo:
+
+int buf, p=0, c=0
+
+procces Productor {
+	int a[n] = INI();
+	{I}
+	while(p < n)
+	{
+		{I Intersección p<n}
+
+		<await (p==c)>;
+
+		{I Interseccion p<n Interseccion p == c}
+		buff = a[p];
+		{I Interseccion p<n intertesccion p==c interseccion buf == INI[P]}
+		p = p + 1;
+		{I}
+
+	}
+}
+
+process Consumidor {
+	int b[n];
+	{Ic}
+	while(c < n) {
+		{Ic && c < n}
+		<await (p > c)> ;
+		{Ic && c<n && p>c}
+		b[c] = buff;
+		{Ic && c < n && p > c && b[c]== INI[C]}
+		c = c+1;
+		{Ic}
+ 
+	}
+}
+
+Invariantes:
+
+I = {c <= p <= c+1 && a[0:N-1] == INI[0:N-1] && p == c+1 -> buf = InI[p-1]} ----- Del productor
+Ic =  {I Interseccion c<= n && b[0:C-1]==INI[0:C-1]}
+
+-OJO en los CO: Las precondiciones y postcondiciones deben cumplirse siempre ya que puede que otros procesos se ejecuten
+antes que él y no se cumplan como esperamos.
+
+
