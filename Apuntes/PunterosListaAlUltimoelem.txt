@@ -1,0 +1,17 @@
+process Find [i=0 to N-1]
+{
+	int new, d=1;
+	end[i]=link[i];
+	barrera(i);
+
+	while(d<N)
+	{
+
+		new = null;
+		if(end[i] = null && end[end[i]] != null) new = end[end[i]];
+		barrera(i);
+		if(new != null) end[i] = new;
+		barrera(i);
+		d=dtd;
+	}
+}

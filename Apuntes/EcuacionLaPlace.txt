@@ -1,0 +1,25 @@
+2) LaPlace
+
+real grid [N+1,N+1], newgrid [N+1,N+1];
+bool converge = false;
+process grid [i=1 to N; j = 1 to N]
+	while(!converge){
+		newgrid [i,j]= (grid[i-1,j]+ grid[i+1,j] + grid[i,j-1] + grid[i,j+1])/4;
+		check(converge);
+		grid[i,j] = newgrid[i,j];
+		}
+
+Insertar barreras:
+
+//las barreras no tienen un único sitio pueden ponerse en otras partes y seguir funcionando
+
+real grid [N+1,N+1], newgrid [N+1,N+1];
+bool converge = false;
+process grid [i=1 to N; j = 1 to N]
+	while(!converge){
+		barrera(i,j);
+		newgrid [i,j]= (grid[i-1,j]+ grid[i+1,j] + grid[i,j-1] + grid[i,j+1])/4;
+		check(converge);
+		barrera(i,j);
+		grid[i,j] = newgrid[i,j];
+		}
