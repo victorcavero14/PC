@@ -1,4 +1,3 @@
-package EsperaActiva;
 public class A {
 	
 	public int _var = 0;

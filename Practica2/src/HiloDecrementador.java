@@ -1,5 +1,3 @@
-package EsperaActiva;
-
 public class HiloDecrementador extends Thread{
 	
 	public A _a;
@@ -16,10 +14,7 @@ public class HiloDecrementador extends Thread{
 	{		
 		for (int i= 0; i < _n; i++)
 		{
-			while(_a.get_inc());
-			_a.setDecrementada(true);
 			_a.decrementa();
-			_a.setDecrementada(false);
 			System.out.println("a = " + _a.get_var());
 		}
 	}
