@@ -1,16 +1,21 @@
+package main;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Main {
+import Funcionality.A;
+import Funcionality.HiloDecrementador;
+import Funcionality.HiloIncrementador;
+import LockImplementations.Lock;
+import LockImplementations.LockBakery;
+import LockImplementations.LockTicket;
 
-	// volatile int in[];
-	// volatile int last[];
+public class Main {
 
 	public static void main(String[] args) {
 
-		int N = 100; // numero de operaciones cada proceso
-		int M = 6; // numero de procesos de un tipo (TOTAL PROC 2*M)
-		LockRompeEmpate lock = new LockRompeEmpate(2*M);
+		int N = 10000; // numero de operaciones cada proceso
+		int M = 8; // numero de procesos de un tipo (TOTAL PROCESOS 2*M)
+		Lock lock = new LockBakery(2*M);
 
 		A a = new A();
 		List<Thread> hi = new ArrayList<Thread>();

@@ -1,3 +1,4 @@
+package Funcionality;
 public class A {
 	
 	public int _var = 0;

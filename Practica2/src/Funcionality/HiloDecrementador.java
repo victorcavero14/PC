@@ -1,10 +1,13 @@
+package Funcionality;
+import LockImplementations.Lock;
+
 public class HiloDecrementador extends Thread{
 	
 	public A _a;
 	public int _n;
-	LockRompeEmpate _lock;
+	Lock _lock;
 	
-	public HiloDecrementador(String string, A a, int N, LockRompeEmpate lock) {
+	public HiloDecrementador(String string, A a, int N, Lock lock) {
 		
 		super(string);
 		_a = a;
@@ -16,10 +19,10 @@ public class HiloDecrementador extends Thread{
 	{		
 		for (int i= 0; i < _n; i++)
 		{
-			_lock.takeLock(Integer.parseInt(this.getName()));
+			_lock.takeLock();
 			_a.decrementa();
 			System.out.println("a = " + _a.get_var());
-			_lock.releaseLock(Integer.parseInt(this.getName()));
+			_lock.releaseLock();
 		}
 	}
 }
