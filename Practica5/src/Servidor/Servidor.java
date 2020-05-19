@@ -48,7 +48,7 @@ public class Servidor {
 		}
 		catch(IOException e)
 		{
-			System.out.println("ERROR EN LA CONEXION CON CLIENTE O CREACION DEL SERVIDOR");
+			throw new RuntimeException("No se ha podido crear el servidor", e);
 		}
 	}
 

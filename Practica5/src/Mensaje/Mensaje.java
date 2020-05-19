@@ -2,12 +2,43 @@ package Mensaje;
 
 public abstract class Mensaje {
 	
-	// IMPLENTAR VARIAS CLASES
-	// Implentar su funcionalidad dependiendo del tipo del mensaje (Envio de informacion, comienzo del protocolo...)
+	/*
+	Tipos de mensajes
+		0 - Conexión
+		1 - Confirmacion conexión
+		2 - Cerrar conexión
+		3 - Confirmacion cerrar conexión
+		4 - Lista Usuarios
+		5 - Confirmación lista de usuarios
+		6 - Pedir Fichero
+		7 - Emitir Fichero
+		8 - Preparado Cliente Servidor
+		9 - Preparado Servidor Cliente
+	*/
+
+	protected int _tipo;
+	protected String _origen;
+	protected String _destino;
+
+	public Mensaje(String origen, String destino)
+	{
+		_origen = origen;
+		_destino = destino;
+	}
+
+	public int getTipo()
+	{
+		return _tipo;
+	}
 	
-	public abstract int getTipo();
+	public String getOrigen()
+	{
+		return _origen;
+	}
 	
-	public abstract String getOrigen();
-	
-	public abstract String getDestino();
+	public String getDestino()
+	{
+		return _destino;
+	}
+
 }

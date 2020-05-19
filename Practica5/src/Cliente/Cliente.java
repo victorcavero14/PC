@@ -37,7 +37,8 @@ public class Cliente {
 			OutputStream outputC = _socket.getOutputStream();
 			_serverPW = new PrintWriter(outputC, true);
 
-			(new OyenteServidor(_socket)).start();
+			start();
+			//(new OyenteServidor(_socket)).start();
 
 			// OutputStream outputC = _socket.getOutputStream();
 			// _serverBW = new BufferedWriter(new
