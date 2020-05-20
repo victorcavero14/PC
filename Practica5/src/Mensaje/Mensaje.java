@@ -1,21 +1,23 @@
 package Mensaje;
 
-public abstract class Mensaje {
+import java.io.Serializable;
+
+public abstract class Mensaje implements Serializable{
 	
 	/*
 	Tipos de mensajes
-		0 - Conexión
-		1 - Confirmacion conexión
-		2 - Cerrar conexión
-		3 - Confirmacion cerrar conexión
+		0 - Conexion
+		1 - Confirmacion conexion
+		2 - Cerrar conexion
+		3 - Confirmacion cerrar conexion
 		4 - Lista Usuarios
-		5 - Confirmación lista de usuarios
+		5 - Confirmacion lista de usuarios
 		6 - Pedir Fichero
 		7 - Emitir Fichero
 		8 - Preparado Cliente Servidor
 		9 - Preparado Servidor Cliente
 	*/
-
+	
 	protected int _tipo;
 	protected String _origen;
 	protected String _destino;
@@ -39,6 +41,11 @@ public abstract class Mensaje {
 	public String getDestino()
 	{
 		return _destino;
+	}
+	
+	public String toString()
+	{
+		return "TIPO: " + _tipo + ", ORIGEN: " + _origen + ", DESTINO: " + _destino;
 	}
 
 }

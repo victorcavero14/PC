@@ -1,13 +1,13 @@
 package Servidor;
 
-import java.io.BufferedReader;
+import Mensaje.*;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
 
 import Mensaje.Mensaje;
 
@@ -22,58 +22,62 @@ public class OyenteCliente extends Thread {
 	}
 
 	public void run() {
-		while (true) {
-			InputStream inputC;
-			try {
-				inputC = _socket.getInputStream();
-				OutputStream outputC = _socket.getOutputStream();
-
-				InputStreamReader sp = new InputStreamReader(inputC);
+		try {
+			InputStream inputC = _socket.getInputStream();
+			OutputStream outputC = _socket.getOutputStream();
 			
-				System.out.println(new BufferedReader(sp).readLine());
-				
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			ObjectOutputStream objectOut = new ObjectOutputStream(outputC);
+			ObjectInputStream objectIn = new ObjectInputStream(inputC);
+			
+			while(true)
+			{
+				Mensaje msj = (Mensaje) objectIn.readObject();
+
+				if(msj instanceof MensajeConexion)
+				{
+					MensajeConexion msj_aux = (MensajeConexion) msj;
+					Usuario user = _servidor.obtenerUsuario(msj_aux.get_nombreCliente());
+					
+					if(user != null)
+					{
+						HashMap<ObjectInputStream,ObjectOutputStream> par = new HashMap<ObjectInputStream,ObjectOutputStream>();
+						par.put(objectIn, objectOut);
+
+						_servidor.add_cliente(user, par);
+						objectOut.writeObject(new MensajeConfirmacionConexion(msj_aux.getDestino(), msj_aux.getOrigen()));
+					}
+					else
+					{
+						objectOut.writeObject(new MensajeConfirmacionCerrarConexion(msj_aux.getDestino(), msj_aux.getOrigen()));
+					}
+				}
+				else if(msj instanceof MensajeListaUsuarios)
+				{
+
+				}
+				else if(msj instanceof MensajeCerrarConexion)
+				{
+
+				}
+				else if(msj instanceof MensajePedirFichero)
+				{
+
+				}
+				else if(msj instanceof MensajeEmitirFichero)
+				{
+
+				}
+				else if(msj instanceof MensajePreparadoClienteServidor)
+				{
+
+				}
 			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		
-		while(true)
-		{
-			Mensaje m = (Mensaje) fin.readObject();
-
-			if(m == Mensaje.START)
-			{
-				InputStream inputC = _socket.getInputStream();
-				OutputStream outputC = _socket.getOutputStream();
-
-				HashMap<BufferedReader,PrintWriter> _par = new HashMap<BufferedReader,PrintWriter>();
-				_par.put(new BufferedReader(new InputStreamReader(inputC)),new PrintWriter(outputC, true));	
-
-				_servidor.add_cliente(Usuario, _par);
-			}
-			else if(m == Mensaje.LISTA_USUARIOS)
-			{
-
-			}
-			else if(m == Mensaje.CLOSE)
-			{
-
-			}
-			else if(m == Mensaje.PEDIR_FICHERO)
-			{
-
-			}
-			else if(m == Mensaje.EMITIR_FICHERO)
-			{
-
-			}
-			else if(m == Mensaje.PREPARADO_CLIENTE_SERVIDOR)
-			{
-
-			}
-		}
-
 	}
 	
 }

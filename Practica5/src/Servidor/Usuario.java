@@ -1,5 +1,5 @@
+package Servidor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Usuario {
@@ -7,7 +7,7 @@ public class Usuario {
 	private String _ip;
 	private List<String> _ficheros;
 	
-	public Usuario(String id, String ip, ArrayList<String> ficheros)
+	public Usuario(String id, String ip, List<String> ficheros)
 	{
 		_id = id;
 		_ip = ip;
