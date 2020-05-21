@@ -20,9 +20,12 @@ public class Servidor {
 	private int _port;
 	private ServerSocket _serverSocket;
 	
-	private List<Usuario> _usuarios;
 	// LISTA DE USUARIOS GLOBAL
+	private List<Usuario> _usuarios;
+	
+	// LISTA DE USUARIOS CONECTADOS AL SERVIDOR ACTUALMENTE
 	private List<Usuario> _usuariosConectados;
+	
 	// LISTA ID USUARIO CON PAR Fin y Fout
 	private HashMap<String, HashMap<ObjectInputStream, ObjectOutputStream>> _conexionesUsuarios; 
 
@@ -31,7 +34,7 @@ public class Servidor {
 		try{
 			
 			_usuarios = new ArrayList<Usuario>();
-			carga_usuarios();
+			cargarUsuariosArchivo();
 			_ip = InetAddress.getLocalHost().getHostAddress();
 			_port = port;
 			_serverSocket = new ServerSocket(_port);
@@ -39,9 +42,9 @@ public class Servidor {
 			_conexionesUsuarios = new HashMap<String, HashMap<ObjectInputStream,ObjectOutputStream>>();
 
 			while(true)
-			{
-				Socket clientesocket = _serverSocket.accept();
-				(new OyenteCliente(clientesocket, this)).start();
+			{	
+				
+				(new OyenteCliente(_serverSocket.accept(), this)).start();
 			}
 
 		}
@@ -55,7 +58,7 @@ public class Servidor {
 		}
 	}
 	
-	public void carga_usuarios()
+	public void cargarUsuariosArchivo()
 	{
 		// LEEMOS DEL FICHERO USERS Y LO CARGAMOS en _USUARIOS
 
@@ -100,15 +103,28 @@ public class Servidor {
 		return user;
 	}
 	
-	public void add_cliente(Usuario usuario, HashMap<ObjectInputStream,ObjectOutputStream> par)
+	public HashMap<ObjectInputStream,ObjectOutputStream> obtenerObjectSocket(Usuario usuario)
+	{
+		return _conexionesUsuarios.get(usuario);
+	}
+	
+	public synchronized void conexionUsuario(Usuario usuario, HashMap<ObjectInputStream,ObjectOutputStream> par)
 	{
 		_usuariosConectados.add(usuario);
 		_conexionesUsuarios.put(usuario.get_id(), par);
 	}
+	
+	public synchronized void desconexionUsuario(Usuario usuario)
+	{
+		_usuariosConectados.remove(usuario);
+		_conexionesUsuarios.remove(usuario.get_id());
+	}
 
 	// GETTERS AND SETTERS
-
 	
+	public List<Usuario> get_usuariosConectados() {
+		return _usuariosConectados;
+	}
 
 	public static void main(String[] args) {
 		if(args.length < 1) return;

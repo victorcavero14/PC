@@ -10,11 +10,14 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Cliente {
 
 	private String _nombre;
-	private String _ip; // InetsocketAddress ??
+	private String _ip;
 	private Socket _socket;
 	private Scanner _sc;
 
@@ -23,8 +26,11 @@ public class Cliente {
 	private ObjectInputStream _serverOIS;
 	
 	// SINCRONIZACION: 
+	
 	private boolean _conexionConfirmada;
+	private MonitorCliente _monitor;
 
+	
 	public Cliente(String ip, String host_ip, int port) {
 		
 		_conexionConfirmada = false;
@@ -35,6 +41,9 @@ public class Cliente {
 		
 		_ip = ip;
 		
+		_monitor = new MonitorCliente();
+		
+		
 		try {
 			_socket = new Socket(host_ip, port);
 
@@ -44,16 +53,27 @@ public class Cliente {
 			_serverOIS = new ObjectInputStream(inputC);
 			_serverOOS = new ObjectOutputStream(outputC);
 			
-			(new OyenteServidor(_socket, this)).start();
+			Thread th = (new OyenteServidor(_socket, this)); 
+			th.start();
 			
-			conexion();
-			while(!_conexionConfirmada); // ESTO QUIZAS SE PUEDA HACER MEJOR CON LOCKS! ?
-			menu();
-			cerrarConexion();
+			protocoloDeInicio();
+			
 			_sc.close();
-
+			th.join();
+			_socket.close();
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+	
+	public void protocoloDeInicio()
+	{
+		conexion();
+		
+		if(_conexionConfirmada)
+		{
+			menu();
+			cerrarConexion();
 		}
 	}
 	
@@ -62,11 +82,14 @@ public class Cliente {
 		StringBuilder sb = new StringBuilder();
 		String opcion = "";
 		
-		sb.append("MENU DE " + _nombre + ", OPCIONES DISPONILBLES: ");
+		sb.append(System.lineSeparator());
+		sb.append("CLIENTE " + _nombre + " " + _ip);
+		sb.append(System.lineSeparator());
+		sb.append("OPCIONES DISPONILBLES: ");
 		sb.append(System.lineSeparator());
 		sb.append("0 --- SALIR");
 		sb.append(System.lineSeparator());
-		sb.append("1 --- Lista de Usuarios");
+		sb.append("1 --- Lista de usuarios conectados al servidor");
 		sb.append(System.lineSeparator());
 		sb.append("2 --- Pedir fichero");
 		sb.append(System.lineSeparator());
@@ -83,57 +106,75 @@ public class Cliente {
 			}
 			else if(opcion.equals("2"))
 			{
-				pedirFichero();
+				System.out.println();
+				System.out.print("Introduce el nombre y posicion del archivo (Separados por un espacio): ");
+				String datos = _sc.next();
+				String[] arr = datos.split(" ");
+				
+				pedirFichero(arr[0], Integer.parseInt(arr[1]));
 			}
+			
+			// MENSAJE PREPARADO CLIENTE SERVIDOR
+			// AÑADIR MODIFICACION DE TABLAS!! CLIENTE TIENE NUIEVOS FICHEROS... (OPCIONAL...)
 		}
 	}
-	
-	public void enviarMensaje(Mensaje msj)
+
+	public synchronized void enviarMensaje(Mensaje msj)
 	{
 		try {
 			_serverOOS.writeObject(msj);
+			_monitor.mensajeEnviado();
 			
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.out.println("No se ha podido enviar el mensaje: ");
 			System.out.println(msj.toString());
-		}	
+		}
 	}
 
 	public void conexion() {
-		MensajeConexion msj = new MensajeConexion(_ip, _socket.getInetAddress().getHostAddress(), _nombre);
+		MensajeConexion msj = new MensajeConexion(_nombre, _socket.getInetAddress().getHostName());
 		enviarMensaje(msj);
 	}
 
 	public void cerrarConexion() {
-		MensajeCerrarConexion msj = new MensajeCerrarConexion(_ip, _socket.getInetAddress().getHostAddress());
+		MensajeCerrarConexion msj = new MensajeCerrarConexion(_nombre, _socket.getInetAddress().getHostName());
 		enviarMensaje(msj);	
 	}
 	
 	public void listaUsuarios() {
-		MensajeListaUsuarios msj = new MensajeListaUsuarios(_ip, _socket.getInetAddress().getHostAddress());
+		MensajeListaUsuarios msj = new MensajeListaUsuarios(_nombre, _socket.getInetAddress().getHostName());
 		enviarMensaje(msj);
 	}
 	
-	public void pedirFichero()
+	public void pedirFichero(String nombreUsuario, int pos)
 	{
-		MensajePedirFichero msj = new MensajePedirFichero(_ip, _socket.getInetAddress().getHostAddress());
+		MensajePedirFichero msj = new MensajePedirFichero(_nombre, _socket.getInetAddress().getHostName(), nombreUsuario, pos);
 		enviarMensaje(msj);
 	}
 	
 	public void preparadoClienteServidor()
 	{
-		MensajePreparadoClienteServidor msj = new MensajePreparadoClienteServidor(_ip, _socket.getInetAddress().getHostAddress());
+		MensajePreparadoClienteServidor msj = new MensajePreparadoClienteServidor(_nombre, _socket.getInetAddress().getHostName());
 		enviarMensaje(msj);
+	}
+	
+	// GETTERS AND SETTERS
+	
+	public ObjectOutputStream get_serverOOS() {
+		return _serverOOS;
 	}
 
 	public ObjectInputStream get_serverOIS() {
 		return _serverOIS;
 	}
+
+	public MonitorCliente get_monitor() {
+		return _monitor;
+	}
 	
-	public void conexionConfirmada()
-	{
-		_conexionConfirmada = true;
+	public void set_conexionConfirmada(boolean _conexionConfirmada) {
+		this._conexionConfirmada = _conexionConfirmada;
 	}
 
 	public static void main(String[] args) {

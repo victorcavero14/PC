@@ -149,7 +149,7 @@ while (true)
         * envio  fout1 mensaje  MENSAJE_PREPARADO_SERVIDORCLIENTE
 }
 
-
+Le pongo un 0 a new ServerSocket(0) para que busque el primer puerto disponible y abierto
                                       S          
 
                      fin1                         fout2                      

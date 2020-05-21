@@ -1,9 +1,23 @@
 package Mensaje;
 
+import java.util.List;
+
+import Servidor.Usuario;
+
 public class MensajeConfirmacionListaUsuarios extends Mensaje{
-    public MensajeConfirmacionListaUsuarios (String origen, String destino)
+	
+	private List<Usuario> _listaUsuarios;
+	
+    public MensajeConfirmacionListaUsuarios (String origen, String destino, List<Usuario> listaUsuarios)
     {
         super(origen,destino);
-        this._tipo = 5;
+        _tipo = 5;
+        _listaUsuarios = listaUsuarios;
     }
+    
+    public List<Usuario> get_listaUsuarios()
+    {
+    	return _listaUsuarios;
+    }
+    
 }
