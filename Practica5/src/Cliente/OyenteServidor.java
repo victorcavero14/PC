@@ -6,6 +6,7 @@ import Servidor.Usuario;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
 
@@ -57,7 +58,11 @@ public class OyenteServidor extends Thread
 				}
 				else if(msj instanceof MensajeEmitirFichero)
 				{
-					
+					MensajeEmitirFichero msj_aux = (MensajeEmitirFichero) msj;
+
+					ServerSocket sSocketCliente = new ServerSocket(0); // Buscamos un puerto disponible
+		
+					new MensajePreparadoClienteServidor(msj.getDestino(),msj.getOrigen(), msj.getDestino(), _cliente.get_ip(),sSocketCliente.getLocalPort())
 				}
 				else if(msj instanceof MensajePreparadoServidorCliente)
 				{
