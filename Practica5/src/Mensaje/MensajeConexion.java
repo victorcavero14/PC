@@ -1,7 +1,12 @@
 package Mensaje;
 
 public class MensajeConexion extends Mensaje{
-    public MensajeConexion(String origen, String destino)
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public MensajeConexion(String origen, String destino)
     {
         super(origen,destino);
         _tipo = 0;

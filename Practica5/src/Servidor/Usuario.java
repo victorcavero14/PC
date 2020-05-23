@@ -4,6 +4,10 @@ import java.io.Serializable;
 import java.util.List;
 
 public class Usuario implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private String _id;
 	private String _ip;
 	private List<String> _ficheros;
@@ -33,6 +37,10 @@ public class Usuario implements Serializable{
 	public List<String> get_ficheros()
 	{
 		return _ficheros;
+	}
+
+	public void insertarFichero(String nombreFichero) {
+		_ficheros.add(nombreFichero);
 	}
 
 }

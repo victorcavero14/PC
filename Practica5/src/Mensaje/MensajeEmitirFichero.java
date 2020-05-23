@@ -2,23 +2,21 @@ package Mensaje;
 
 public class MensajeEmitirFichero extends Mensaje {
 	
-	private String _usuarioArchivo;
-	private int _posArchivo;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private String _nombreArchivo;
 	
-    public MensajeEmitirFichero (String origen, String destino, String usuarioArchivo, int posArchivo)
+    public MensajeEmitirFichero (String origen, String destino, String nombreArchivo)
     {
         super(origen,destino);
         _tipo = 7;
         
-        _usuarioArchivo = usuarioArchivo;
-        _posArchivo = posArchivo;
+        _nombreArchivo = nombreArchivo;
     }
-    
-    public String get_usuarioArchivo() {
-		return _usuarioArchivo;
-	}
 
-	public int get_posArchivo() {
-		return _posArchivo;
+	public String get_nombreArchivo() {
+		return _nombreArchivo;
 	}
 }

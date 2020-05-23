@@ -2,16 +2,10 @@ package Servidor;
 
 import Mensaje.*;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-import Mensaje.Mensaje;
 
 public class OyenteCliente extends Thread {
 
@@ -25,11 +19,9 @@ public class OyenteCliente extends Thread {
 
 	public void run() {
 		try {
-			InputStream inputC = _socket.getInputStream();
-			OutputStream outputC = _socket.getOutputStream();
 			
-			ObjectOutputStream objectOut = new ObjectOutputStream(outputC);
-			ObjectInputStream objectIn = new ObjectInputStream(inputC);
+			ObjectOutputStream objectOut = new ObjectOutputStream(_socket.getOutputStream());
+			ObjectInputStream objectIn = new ObjectInputStream(_socket.getInputStream());
 			
 			Boolean cerrado = false;
 			
@@ -41,12 +33,9 @@ public class OyenteCliente extends Thread {
 				{
 					Usuario user = _servidor.obtenerUsuario(msj.getOrigen());
 					
-					if(user != null)
+					if(user != null && !_servidor.usuarioConectado(msj.getOrigen()))
 					{
-						HashMap<ObjectInputStream,ObjectOutputStream> par = new HashMap<ObjectInputStream,ObjectOutputStream>();
-						par.put(objectIn, objectOut);
-
-						_servidor.conexionUsuario(user, par);
+						_servidor.conexionUsuario(user,objectIn, objectOut);
 						objectOut.writeObject(new MensajeConfirmacionConexion(msj.getDestino(), msj.getOrigen()));
 					}
 					else
@@ -68,24 +57,24 @@ public class OyenteCliente extends Thread {
 				}
 				else if(msj instanceof MensajePedirFichero)
 				{
-					// ESTO QUIZAS HABRIA QUE HACERLO EN EL OYENTECLIENTE 2 
+					// Insertamos el nuevo fichero del cliente en la base datos (Ojo porque realmente no lo tiene descargado aun)
+					// Otra opcion seria insertar otro "MensajeFicheroDescargado" enviado al servidor
 					
 					MensajePedirFichero msj_aux = (MensajePedirFichero) msj;
+					ObjectOutputStream output = _servidor.obtenerObjectOutputSocket(msj_aux.getDestino());
 					
-					Usuario usuario = _servidor.obtenerUsuario(msj_aux.get_usuarioArchivo());
-					HashMap<ObjectInputStream,ObjectOutputStream> map = _servidor.obtenerObjectSocket(usuario);
+					String nombreFichero = _servidor.obtenerNombreFichero(msj_aux.get_posArchivo(), msj_aux.getDestino());
 					
-					Map.Entry<ObjectInputStream,ObjectOutputStream> entry = map.entrySet().iterator().next();
+					_servidor.ficheroDescargadoPorUsuario(msj.getOrigen(), nombreFichero);
 					
-					entry.getValue().writeObject(new MensajeEmitirFichero(msj.getDestino(), msj_aux.get_usuarioArchivo(), msj.getOrigen(), msj_aux.get_posArchivo()));
-				}
-				else if(msj instanceof MensajeEmitirFichero)
-				{
-
+					output.writeObject(new MensajeEmitirFichero(msj.getOrigen(), msj.getDestino(), nombreFichero));
 				}
 				else if(msj instanceof MensajePreparadoClienteServidor)
-				{
-
+				{		
+					MensajePreparadoClienteServidor msj_aux = (MensajePreparadoClienteServidor) msj;
+					ObjectOutputStream output = _servidor.obtenerObjectOutputSocket(msj_aux.getDestino());
+										
+					output.writeObject(new MensajePreparadoServidorCliente(msj.getOrigen(), msj_aux.getDestino(), msj_aux.get_ip(), msj_aux.get_port()));
 				}
 			}
 		} catch (IOException e) {

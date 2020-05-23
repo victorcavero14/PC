@@ -7,7 +7,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,13 +20,14 @@ public class Servidor {
 	private ServerSocket _serverSocket;
 	
 	// LISTA DE USUARIOS GLOBAL
-	private List<Usuario> _usuarios;
+	private volatile List<Usuario> _usuarios;
 	
 	// LISTA DE USUARIOS CONECTADOS AL SERVIDOR ACTUALMENTE
-	private List<Usuario> _usuariosConectados;
+	private volatile List<Usuario> _usuariosConectados;
 	
 	// LISTA ID USUARIO CON PAR Fin y Fout
-	private HashMap<String, HashMap<ObjectInputStream, ObjectOutputStream>> _conexionesUsuarios; 
+	private volatile HashMap<String, ObjectInputStream> _conexionesInputUsuarios;
+	private volatile HashMap<String, ObjectOutputStream> _conexionesOutputUsuarios;
 
 	public Servidor(int port)
 	{
@@ -39,7 +39,8 @@ public class Servidor {
 			_port = port;
 			_serverSocket = new ServerSocket(_port);
 			_usuariosConectados = new ArrayList<Usuario>();
-			_conexionesUsuarios = new HashMap<String, HashMap<ObjectInputStream,ObjectOutputStream>>();
+			_conexionesOutputUsuarios = new HashMap<String,ObjectOutputStream>();
+			_conexionesInputUsuarios = new HashMap<String, ObjectInputStream>();
 
 			while(true)
 			{	
@@ -103,21 +104,71 @@ public class Servidor {
 		return user;
 	}
 	
-	public HashMap<ObjectInputStream,ObjectOutputStream> obtenerObjectSocket(Usuario usuario)
+	public boolean usuarioConectado(String usuario) 
 	{
-		return _conexionesUsuarios.get(usuario);
+		boolean conectado = false;
+		
+		for(int i = 0; i < _usuariosConectados.size() && !conectado; i++)
+		{
+			if(usuario.equals(_usuariosConectados.get(i).get_id()))
+			{
+				conectado = true;
+			}
+		}
+		return conectado;
+	}
+
+	public String obtenerNombreFichero(int posArchivo, String usuarioArchivo) {
+		// TODO Auto-generated method stub
+		return obtenerUsuario(usuarioArchivo).get_ficheros().get(posArchivo);
 	}
 	
-	public synchronized void conexionUsuario(Usuario usuario, HashMap<ObjectInputStream,ObjectOutputStream> par)
+	public ObjectInputStream obtenerObjectInputSocket(String usuario)
+	{
+		return _conexionesInputUsuarios.get(usuario);
+	}
+	
+	public ObjectOutputStream obtenerObjectOutputSocket(String usuario)
+	{
+		return _conexionesOutputUsuarios.get(usuario);
+	}
+	
+	public synchronized void ficheroDescargadoPorUsuario(String nombreCliente, String nombreFichero) {
+		
+		// No actualizo la base de datos (solo los usuarios conectados) - Habria que modificar el archivo tambien para que sea completo
+		
+		boolean encontrado = false;
+		Usuario user = null;
+		int i = 0;
+		while(!encontrado && i < _usuariosConectados.size())
+		{
+			user = _usuariosConectados.get(i);
+			if(nombreCliente.equals(user.get_id()))
+			{
+				List<String> ficheros = user.get_ficheros();
+				ficheros.add(nombreFichero);
+				List<String> nuevosFich = new ArrayList<String>(ficheros);
+				
+				_usuariosConectados.add(new Usuario(user.get_id(),user.get_ip(), nuevosFich));
+				_usuariosConectados.remove(i);
+				encontrado = true;
+			}
+			i++;
+		}
+	}
+	
+	public synchronized void conexionUsuario(Usuario usuario, ObjectInputStream input, ObjectOutputStream output)
 	{
 		_usuariosConectados.add(usuario);
-		_conexionesUsuarios.put(usuario.get_id(), par);
+		_conexionesInputUsuarios.put(usuario.get_id(), input);
+		_conexionesOutputUsuarios.put(usuario.get_id(), output);
 	}
 	
 	public synchronized void desconexionUsuario(Usuario usuario)
 	{
 		_usuariosConectados.remove(usuario);
-		_conexionesUsuarios.remove(usuario.get_id());
+		_conexionesInputUsuarios.remove(usuario.get_id());
+		_conexionesOutputUsuarios.remove(usuario.get_id());
 	}
 
 	// GETTERS AND SETTERS

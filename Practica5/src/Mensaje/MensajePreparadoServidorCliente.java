@@ -2,10 +2,14 @@ package Mensaje;
 
 public class MensajePreparadoServidorCliente extends Mensaje{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	public int _port;
 	public String _ip;
 	
-    public MensajePreparadoServidorCliente(String origen, String destino, int port, String ip)
+    public MensajePreparadoServidorCliente(String origen, String destino, String ip, int port)
     {
         super(origen,destino);
         _tipo = 9;

@@ -5,28 +5,29 @@ import Servidor.Usuario;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
 
 public class OyenteServidor extends Thread 
 {
-	// Hilo diferente que establece de manera continua la comunicaci�n con el servidor
+	// Hilo diferente que establece de manera continua la comunicacion con el servidor
 
 	private Socket _socket;
 	private Cliente _cliente;
-	private ObjectOutputStream _serverOOS;
 	private ObjectInputStream _serverOIS;
 	private MonitorCliente _monitor;
-
 
 	public OyenteServidor(Socket socket, Cliente cliente)
 	{
 		_socket = socket;
 		_cliente = cliente;
-		_serverOOS = cliente.get_serverOOS();
-		_serverOIS = cliente.get_serverOIS();
+		
+		try {
+			_serverOIS = new ObjectInputStream(_socket.getInputStream());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 		_monitor = cliente.get_monitor();
 	}
 
@@ -59,14 +60,16 @@ public class OyenteServidor extends Thread
 				else if(msj instanceof MensajeEmitirFichero)
 				{
 					MensajeEmitirFichero msj_aux = (MensajeEmitirFichero) msj;
-
-					ServerSocket sSocketCliente = new ServerSocket(0); // Buscamos un puerto disponible
-		
-					new MensajePreparadoClienteServidor(msj.getDestino(),msj.getOrigen(), msj.getDestino(), _cliente.get_ip(),sSocketCliente.getLocalPort())
+					Emisor emisor = new Emisor(msj_aux.get_nombreArchivo(), _cliente.get_nombre());
+					emisor.start();
+					
+					_cliente.preparadoClienteServidor(msj_aux.getOrigen(), emisor.get_port());
 				}
 				else if(msj instanceof MensajePreparadoServidorCliente)
 				{
+					MensajePreparadoServidorCliente msj_aux = (MensajePreparadoServidorCliente) msj;
 					
+					new Receptor(msj_aux.get_ip(),msj_aux.get_port(), _cliente.get_nombre()).start();
 				}
 				
 				_monitor.mensajeRecibido();

@@ -2,17 +2,11 @@ package Cliente;
 
 import Mensaje.*;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class Cliente {
 
@@ -23,7 +17,6 @@ public class Cliente {
 
 	// FLUJO:
 	private ObjectOutputStream _serverOOS;
-	private ObjectInputStream _serverOIS;
 	
 	// SINCRONIZACION: 
 	
@@ -46,12 +39,8 @@ public class Cliente {
 		
 		try {
 			_socket = new Socket(host_ip, port);
-
-			InputStream inputC = _socket.getInputStream();
-			OutputStream outputC = _socket.getOutputStream();
 			
-			_serverOIS = new ObjectInputStream(inputC);
-			_serverOOS = new ObjectOutputStream(outputC);
+			_serverOOS = new ObjectOutputStream(_socket.getOutputStream());
 			
 			Thread th = (new OyenteServidor(_socket, this)); 
 			th.start();
@@ -95,10 +84,12 @@ public class Cliente {
 		sb.append(System.lineSeparator());
 		sb.append("OPCION: ");
 		
+		System.out.println(sb.toString());
+		_sc.nextLine();
+		
 		while(!opcion.equals("0"))
 		{
-			System.out.print(sb.toString());
-			opcion = _sc.next();
+			opcion = _sc.nextLine();
 			
 			if(opcion.equals("1"))
 			{
@@ -106,15 +97,15 @@ public class Cliente {
 			}
 			else if(opcion.equals("2"))
 			{
-				System.out.println();
 				System.out.print("Introduce el nombre y posicion del archivo (Separados por un espacio): ");
-				String datos = _sc.next();
+				String datos = _sc.nextLine();
 				String[] arr = datos.split(" ");
 				
 				pedirFichero(arr[0], Integer.parseInt(arr[1]));
 			}
 			
-			// MENSAJE PREPARADO CLIENTE SERVIDOR
+			System.out.println(sb.toString());
+			
 			// AÑADIR MODIFICACION DE TABLAS!! CLIENTE TIENE NUIEVOS FICHEROS... (OPCIONAL...)
 		}
 	}
@@ -147,30 +138,31 @@ public class Cliente {
 		enviarMensaje(msj);
 	}
 	
-	public void pedirFichero(String nombreUsuario, int pos)
+	public void pedirFichero(String destino, int pos)
 	{
-		MensajePedirFichero msj = new MensajePedirFichero(_nombre, _socket.getInetAddress().getHostName(), nombreUsuario, pos);
+		MensajePedirFichero msj = new MensajePedirFichero(_nombre, destino, pos);
 		enviarMensaje(msj);
 	}
 	
-	public void preparadoClienteServidor()
+	public void preparadoClienteServidor(String destino, int port)
 	{
-		MensajePreparadoClienteServidor msj = new MensajePreparadoClienteServidor(_nombre, _socket.getInetAddress().getHostName());
-		enviarMensaje(msj);
+		MensajePreparadoClienteServidor msj = new MensajePreparadoClienteServidor(_nombre, destino, _ip, port);
+		try {
+			_serverOOS.writeObject(msj);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} // porque no esperamos respuesta lo enviamos directamente sin usar el otro metodo
 	}
 	
 	// GETTERS AND SETTERS
 	
-	public ObjectOutputStream get_serverOOS() {
-		return _serverOOS;
-	}
-
-	public ObjectInputStream get_serverOIS() {
-		return _serverOIS;
-	}
-
 	public MonitorCliente get_monitor() {
 		return _monitor;
+	}
+	
+	public String get_nombre()
+	{
+		return _nombre;
 	}
 	
 	public void set_conexionConfirmada(boolean _conexionConfirmada) {

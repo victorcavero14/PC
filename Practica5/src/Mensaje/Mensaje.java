@@ -18,6 +18,10 @@ public abstract class Mensaje implements Serializable{
 		9 - Preparado Servidor Cliente
 	*/
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	protected int _tipo;
 	protected String _origen;
 	protected String _destino;
