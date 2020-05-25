@@ -11,18 +11,24 @@ public class OyenteCliente extends Thread {
 
 	private volatile Servidor _servidor;
 	private Socket _socket;
+	private ObjectOutputStream objectOut;	
+	private ObjectInputStream objectIn;
+
 
 	public OyenteCliente(Socket socket, Servidor servidor) {
 		_socket = socket;
 		_servidor = servidor;
+		
+		try {
+			objectOut = new ObjectOutputStream(_socket.getOutputStream());
+			objectIn = new ObjectInputStream(_socket.getInputStream());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void run() {
 		try {
-			
-			ObjectOutputStream objectOut = new ObjectOutputStream(_socket.getOutputStream());
-			ObjectInputStream objectIn = new ObjectInputStream(_socket.getInputStream());
-			
 			Boolean cerrado = false;
 			
 			while(!cerrado)
@@ -80,7 +86,6 @@ public class OyenteCliente extends Thread {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

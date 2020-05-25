@@ -19,27 +19,22 @@ public class Cliente {
 	private ObjectOutputStream _serverOOS;
 	
 	// SINCRONIZACION: 
-	
 	private boolean _conexionConfirmada;
 	private MonitorCliente _monitor;
 
 	
 	public Cliente(String ip, String host_ip, int port) {
 		
+		_ip = ip;
 		_conexionConfirmada = false;
+		_monitor = new MonitorCliente();
 		_sc = new Scanner(System.in);
 		
 		System.out.print("Introduce tu nombre como cliente: ");
-		_nombre = _sc.next();
-		
-		_ip = ip;
-		
-		_monitor = new MonitorCliente();
-		
+		_nombre = _sc.next();		
 		
 		try {
 			_socket = new Socket(host_ip, port);
-			
 			_serverOOS = new ObjectOutputStream(_socket.getOutputStream());
 			
 			Thread th = (new OyenteServidor(_socket, this)); 
@@ -50,6 +45,7 @@ public class Cliente {
 			_sc.close();
 			th.join();
 			_socket.close();
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -105,8 +101,6 @@ public class Cliente {
 			}
 			
 			System.out.println(sb.toString());
-			
-			// AÑADIR MODIFICACION DE TABLAS!! CLIENTE TIENE NUIEVOS FICHEROS... (OPCIONAL...)
 		}
 	}
 
@@ -144,14 +138,15 @@ public class Cliente {
 		enviarMensaje(msj);
 	}
 	
-	public void preparadoClienteServidor(String destino, int port)
+	public synchronized void preparadoClienteServidor(String destino, int port)
 	{
 		MensajePreparadoClienteServidor msj = new MensajePreparadoClienteServidor(_nombre, destino, _ip, port);
 		try {
 			_serverOOS.writeObject(msj);
 		} catch (IOException e) {
 			e.printStackTrace();
-		} // porque no esperamos respuesta lo enviamos directamente sin usar el otro metodo
+		} 
+		// porque no esperamos respuesta lo enviamos directamente sin usar el otro metodo
 	}
 	
 	// GETTERS AND SETTERS

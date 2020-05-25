@@ -55,8 +55,7 @@ public class Emisor extends Thread{
     		    Files.copy(file.toPath(), d);
     		}       
     	}
-    	catch (IOException e)
-    	{
+    	catch (IOException e){
     		e.printStackTrace();
     	}
     }

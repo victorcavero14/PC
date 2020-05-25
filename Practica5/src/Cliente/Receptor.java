@@ -23,10 +23,8 @@ public class Receptor extends Thread{
 			_nombreCliente = nombreCliente;
 			
     	} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     }
@@ -41,7 +39,6 @@ public class Receptor extends Thread{
     		    Files.copy(d,Paths.get("./" + _nombreCliente + "/" + fileName));
     		}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     	

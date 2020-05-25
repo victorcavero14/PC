@@ -25,7 +25,7 @@ public class Servidor {
 	// LISTA DE USUARIOS CONECTADOS AL SERVIDOR ACTUALMENTE
 	private volatile List<Usuario> _usuariosConectados;
 	
-	// LISTA ID USUARIO CON PAR Fin y Fout
+	// MAPAS ID USUARIO CON Fin y Fout
 	private volatile HashMap<String, ObjectInputStream> _conexionesInputUsuarios;
 	private volatile HashMap<String, ObjectOutputStream> _conexionesOutputUsuarios;
 
@@ -35,7 +35,7 @@ public class Servidor {
 			
 			_usuarios = new ArrayList<Usuario>();
 			cargarUsuariosArchivo();
-			_ip = InetAddress.getLocalHost().getHostAddress();
+			 _ip = InetAddress.getLocalHost().getHostAddress();
 			_port = port;
 			_serverSocket = new ServerSocket(_port);
 			_usuariosConectados = new ArrayList<Usuario>();
@@ -51,11 +51,13 @@ public class Servidor {
 		}
 		catch(UnknownHostException e)
 		{
-			System.out.println("ERROR NO SE HA PODIDO OBTENER LA IP LOCAL");
+			e.printStackTrace();
+			System.out.println("No se ha podido obtener la ip local. ");
 		}
 		catch(IOException e)
 		{
-			throw new RuntimeException("No se ha podido crear el servidor", e);
+			e.printStackTrace();
+			System.out.println("No se ha podido crear el servidor. ");
 		}
 	}
 	
@@ -83,7 +85,7 @@ public class Servidor {
 			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-			System.out.println("Fichero users.txt no ha sido encontrado");
+			System.out.println("Fichero users.txt no ha sido encontrado. ");
 		} 
 	}
 
@@ -104,33 +106,28 @@ public class Servidor {
 		return user;
 	}
 	
-	public boolean usuarioConectado(String usuario) 
+	public Usuario obtenerUsuarioConectado(String nombreCliente)
 	{
+		Usuario user = null;
 		boolean conectado = false;
 		
 		for(int i = 0; i < _usuariosConectados.size() && !conectado; i++)
 		{
-			if(usuario.equals(_usuariosConectados.get(i).get_id()))
+			if(nombreCliente.equals(_usuariosConectados.get(i).get_id()))
 			{
+				user = _usuariosConectados.get(i);
 				conectado = true;
 			}
 		}
+		return user;
+	}
+	
+	public boolean usuarioConectado(String usuario) 
+	{
+		boolean conectado = false;
+		if(obtenerUsuarioConectado(usuario) != null) conectado = true;
+		
 		return conectado;
-	}
-
-	public String obtenerNombreFichero(int posArchivo, String usuarioArchivo) {
-		// TODO Auto-generated method stub
-		return obtenerUsuario(usuarioArchivo).get_ficheros().get(posArchivo);
-	}
-	
-	public ObjectInputStream obtenerObjectInputSocket(String usuario)
-	{
-		return _conexionesInputUsuarios.get(usuario);
-	}
-	
-	public ObjectOutputStream obtenerObjectOutputSocket(String usuario)
-	{
-		return _conexionesOutputUsuarios.get(usuario);
 	}
 	
 	public synchronized void ficheroDescargadoPorUsuario(String nombreCliente, String nombreFichero) {
@@ -172,6 +169,20 @@ public class Servidor {
 	}
 
 	// GETTERS AND SETTERS
+	
+	public ObjectInputStream obtenerObjectInputSocket(String usuario)
+	{
+		return _conexionesInputUsuarios.get(usuario);
+	}
+	
+	public ObjectOutputStream obtenerObjectOutputSocket(String usuario)
+	{
+		return _conexionesOutputUsuarios.get(usuario);
+	}
+
+	public String obtenerNombreFichero(int posArchivo, String usuarioArchivo) {
+		return obtenerUsuarioConectado(usuarioArchivo).get_ficheros().get(posArchivo);
+	}
 	
 	public List<Usuario> get_usuariosConectados() {
 		return _usuariosConectados;
