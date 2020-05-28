@@ -16,7 +16,6 @@ public class Emisor extends Thread{
 	
     public Emisor(String nombreArchivo, String usuario)
     {
-
 		try {
 			ServerSocket sSocketCliente = new ServerSocket(0);
 			
@@ -25,7 +24,6 @@ public class Emisor extends Thread{
 			_usuario = usuario;
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     }
@@ -38,7 +36,6 @@ public class Emisor extends Thread{
     		_serverSocket.close();
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     }

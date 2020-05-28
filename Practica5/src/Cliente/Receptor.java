@@ -32,7 +32,6 @@ public class Receptor extends Thread{
     public void run()
     {
     	try {
-    		
     		BufferedInputStream in = new BufferedInputStream(_inputR);
     		try (DataInputStream d = new DataInputStream(in)) {
     		    String fileName = d.readUTF();
@@ -41,7 +40,5 @@ public class Receptor extends Thread{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-    	
-    	
     }
 }

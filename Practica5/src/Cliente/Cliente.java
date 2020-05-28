@@ -1,7 +1,6 @@
 package Cliente;
 
 import Mensaje.*;
-import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -27,15 +26,16 @@ public class Cliente {
 		
 		_ip = ip;
 		_conexionConfirmada = false;
-		_monitor = new MonitorCliente();
 		_sc = new Scanner(System.in);
 		
 		System.out.print("Introduce tu nombre como cliente: ");
-		_nombre = _sc.next();		
+		_nombre = _sc.nextLine();		
 		
 		try {
 			_socket = new Socket(host_ip, port);
 			_serverOOS = new ObjectOutputStream(_socket.getOutputStream());
+			
+			_monitor = new MonitorCliente(_serverOOS);
 			
 			Thread th = (new OyenteServidor(_socket, this)); 
 			th.start();
@@ -47,6 +47,7 @@ public class Cliente {
 			_socket.close();
 			
 		} catch (Exception e) {
+			System.out.println("No se ha podido establecer la conexion con el servidor");
 			e.printStackTrace();
 		}
 	}
@@ -65,7 +66,7 @@ public class Cliente {
 	public void menu()
 	{
 		StringBuilder sb = new StringBuilder();
-		String opcion = "";
+		String opcion = "-1";
 		
 		sb.append(System.lineSeparator());
 		sb.append("CLIENTE " + _nombre + " " + _ip);
@@ -80,11 +81,9 @@ public class Cliente {
 		sb.append(System.lineSeparator());
 		sb.append("OPCION: ");
 		
-		System.out.println(sb.toString());
-		_sc.nextLine();
-		
 		while(!opcion.equals("0"))
 		{
+			System.out.print(sb.toString());
 			opcion = _sc.nextLine();
 			
 			if(opcion.equals("1"))
@@ -93,60 +92,41 @@ public class Cliente {
 			}
 			else if(opcion.equals("2"))
 			{
-				System.out.print("Introduce el nombre y posicion del archivo (Separados por un espacio): ");
-				String datos = _sc.nextLine();
-				String[] arr = datos.split(" ");
+				System.out.print("Introduce el nombre del usuario: ");
+				String usuario = _sc.nextLine();
+				System.out.print("Posicion del archivo (0,1,2...) : ");
+				String pos = _sc.nextLine();	
 				
-				pedirFichero(arr[0], Integer.parseInt(arr[1]));
+				pedirFichero(usuario, Integer.parseInt(pos));
 			}
-			
-			System.out.println(sb.toString());
-		}
-	}
-
-	public synchronized void enviarMensaje(Mensaje msj)
-	{
-		try {
-			_serverOOS.writeObject(msj);
-			_monitor.mensajeEnviado();
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.out.println("No se ha podido enviar el mensaje: ");
-			System.out.println(msj.toString());
 		}
 	}
 
 	public void conexion() {
 		MensajeConexion msj = new MensajeConexion(_nombre, _socket.getInetAddress().getHostName());
-		enviarMensaje(msj);
+		_monitor.enviarMensajeEsperarRespuesta(msj);
 	}
 
 	public void cerrarConexion() {
 		MensajeCerrarConexion msj = new MensajeCerrarConexion(_nombre, _socket.getInetAddress().getHostName());
-		enviarMensaje(msj);	
+		_monitor.enviarMensajeEsperarRespuesta(msj);	
 	}
 	
 	public void listaUsuarios() {
 		MensajeListaUsuarios msj = new MensajeListaUsuarios(_nombre, _socket.getInetAddress().getHostName());
-		enviarMensaje(msj);
+		_monitor.enviarMensajeEsperarRespuesta(msj);
 	}
 	
 	public void pedirFichero(String destino, int pos)
 	{
 		MensajePedirFichero msj = new MensajePedirFichero(_nombre, destino, pos);
-		enviarMensaje(msj);
+		_monitor.enviarMensajeEsperarRespuesta(msj);
 	}
 	
-	public synchronized void preparadoClienteServidor(String destino, int port)
+	public void preparadoClienteServidor(String destino, int port)
 	{
 		MensajePreparadoClienteServidor msj = new MensajePreparadoClienteServidor(_nombre, destino, _ip, port);
-		try {
-			_serverOOS.writeObject(msj);
-		} catch (IOException e) {
-			e.printStackTrace();
-		} 
-		// porque no esperamos respuesta lo enviamos directamente sin usar el otro metodo
+		_monitor.enviarMensajeNoEsperarRespuesta(msj);
 	}
 	
 	// GETTERS AND SETTERS

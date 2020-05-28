@@ -9,15 +9,15 @@ import java.net.Socket;
 
 public class OyenteCliente extends Thread {
 
-	private volatile Servidor _servidor;
+	private MonitorServidor _monitor;
 	private Socket _socket;
 	private ObjectOutputStream objectOut;	
 	private ObjectInputStream objectIn;
 
 
-	public OyenteCliente(Socket socket, Servidor servidor) {
+	public OyenteCliente(Socket socket, MonitorServidor monitor) {
 		_socket = socket;
-		_servidor = servidor;
+		_monitor = monitor;
 		
 		try {
 			objectOut = new ObjectOutputStream(_socket.getOutputStream());
@@ -37,11 +37,11 @@ public class OyenteCliente extends Thread {
 
 				if(msj instanceof MensajeConexion)
 				{
-					Usuario user = _servidor.obtenerUsuario(msj.getOrigen());
+					Usuario user = _monitor.obtenerUsuario(msj.getOrigen());
 					
-					if(user != null && !_servidor.usuarioConectado(msj.getOrigen()))
+					if(user != null && !_monitor.usuarioConectado(msj.getOrigen()))
 					{
-						_servidor.conexionUsuario(user,objectIn, objectOut);
+						_monitor.conexionUsuario(user,objectIn, objectOut);
 						objectOut.writeObject(new MensajeConfirmacionConexion(msj.getDestino(), msj.getOrigen()));
 					}
 					else
@@ -52,36 +52,37 @@ public class OyenteCliente extends Thread {
 				}
 				else if(msj instanceof MensajeListaUsuarios)
 				{
-					objectOut.writeObject(new MensajeConfirmacionListaUsuarios(msj.getDestino(), msj.getOrigen(), _servidor.get_usuariosConectados()));
+					objectOut.writeObject(new MensajeConfirmacionListaUsuarios(msj.getDestino(), msj.getOrigen(), _monitor.get_usuariosConectados()));
 				}
 				else if(msj instanceof MensajeCerrarConexion)
 				{	
-					_servidor.desconexionUsuario( _servidor.obtenerUsuario(msj.getOrigen()));
+					_monitor.desconexionUsuario( _monitor.obtenerUsuarioConectado(msj.getOrigen()));
 					objectOut.writeObject(new MensajeConfirmacionCerrarConexion(msj.getDestino(), msj.getOrigen()));
 					
 					cerrado = true;
 				}
 				else if(msj instanceof MensajePedirFichero)
 				{
-					// Insertamos el nuevo fichero del cliente en la base datos (Ojo porque realmente no lo tiene descargado aun)
-					// Otra opcion seria insertar otro "MensajeFicheroDescargado" enviado al servidor
+					// Insertamos el nuevo fichero del cliente en la base datos (Realmente no lo tiene descargado aun)
 					
 					MensajePedirFichero msj_aux = (MensajePedirFichero) msj;
-					ObjectOutputStream output = _servidor.obtenerObjectOutputSocket(msj_aux.getDestino());
+					ObjectOutputStream output = _monitor.obtenerObjectOutputSocket(msj_aux.getDestino());
 					
-					String nombreFichero = _servidor.obtenerNombreFichero(msj_aux.get_posArchivo(), msj_aux.getDestino());
+					String nombreFichero = _monitor.obtenerNombreFichero(msj_aux.get_posArchivo(), msj_aux.getDestino());
 					
-					_servidor.ficheroDescargadoPorUsuario(msj.getOrigen(), nombreFichero);
+					_monitor.ficheroDescargadoPorUsuario(msj.getOrigen(), nombreFichero);
 					
 					output.writeObject(new MensajeEmitirFichero(msj.getOrigen(), msj.getDestino(), nombreFichero));
 				}
 				else if(msj instanceof MensajePreparadoClienteServidor)
 				{		
 					MensajePreparadoClienteServidor msj_aux = (MensajePreparadoClienteServidor) msj;
-					ObjectOutputStream output = _servidor.obtenerObjectOutputSocket(msj_aux.getDestino());
-										
+					ObjectOutputStream output = _monitor.obtenerObjectOutputSocket(msj_aux.getDestino());
+				
 					output.writeObject(new MensajePreparadoServidorCliente(msj.getOrigen(), msj_aux.getDestino(), msj_aux.get_ip(), msj_aux.get_port()));
 				}
+				
+				_monitor.imprimeMensaje(msj);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

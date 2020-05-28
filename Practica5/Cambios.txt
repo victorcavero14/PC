@@ -1,0 +1,12 @@
+- Clase creada: MonitorServidor, en ella he añadido todos los metodos que hacen consultas y modificaciones
+  en la base de datos del servidor. Menos el metodo "CargarUsuariosArchivo()" que establece un estado inicial
+  para el servidor.
+  
+- Añadido mensajes informativos por consola en el servidor, para ello creo un nuevo metodo synchronized en la
+  clase MonitorServidor llamado "imprimeMensaje()". Creo los metodos "toString()" en los mensajes que recibe el servidor.
+  
+- Arreglado bug en el menu de los usuarios a causa del Scanner. Eliminado otro metodo synchronized que tenia en cliente y añadido a su monitor
+
+- Arreglado bug en OyenteCliente en la desconexion
+
+- Limpieza general del codigo

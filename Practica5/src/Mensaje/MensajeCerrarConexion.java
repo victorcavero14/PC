@@ -11,5 +11,9 @@ public class MensajeCerrarConexion extends Mensaje{
         super(origen,destino);
         _tipo = 2;
     }
-    
+	
+	public String toString()
+	{
+		return "Mensaje cerrar conexion, origen " + _origen + " y destino " + _destino;
+	}
 }

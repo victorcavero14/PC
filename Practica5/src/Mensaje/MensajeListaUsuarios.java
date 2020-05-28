@@ -11,4 +11,9 @@ public class MensajeListaUsuarios extends Mensaje{
         super(origen,destino);
         _tipo = 4;
     }
+	
+	public String toString()
+	{
+		return "Mensaje lista de usuarios, origen " + _origen + " y destino " + _destino;
+	}
 }

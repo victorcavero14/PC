@@ -10,8 +10,6 @@ import java.util.List;
 
 public class OyenteServidor extends Thread 
 {
-	// Hilo diferente que establece de manera continua la comunicacion con el servidor
-
 	private Socket _socket;
 	private Cliente _cliente;
 	private ObjectInputStream _serverOIS;
@@ -75,10 +73,8 @@ public class OyenteServidor extends Thread
 				_monitor.mensajeRecibido();
 			}
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

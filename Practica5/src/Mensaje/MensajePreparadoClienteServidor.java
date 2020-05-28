@@ -25,4 +25,9 @@ public class MensajePreparadoClienteServidor extends Mensaje{
 	public String get_ip() {
 		return _ip;
 	}
+	
+	public String toString()
+	{
+		return "Mensaje preparado cliente servidor, origen " + _origen + " y destino " + _destino;
+	}
 }

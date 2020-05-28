@@ -11,4 +11,9 @@ public class MensajeConexion extends Mensaje{
         super(origen,destino);
         _tipo = 0;
     }
+	
+	public String toString()
+	{
+		return "Mensaje conexion, origen " + _origen + " y destino " + _destino;
+	}
 }

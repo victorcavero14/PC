@@ -28,42 +28,46 @@ public class Servidor {
 	// MAPAS ID USUARIO CON Fin y Fout
 	private volatile HashMap<String, ObjectInputStream> _conexionesInputUsuarios;
 	private volatile HashMap<String, ObjectOutputStream> _conexionesOutputUsuarios;
+	
+	// SINCRONIZACION
+	private MonitorServidor _monitor;
 
 	public Servidor(int port)
 	{
 		try{
-			
-			_usuarios = new ArrayList<Usuario>();
-			cargarUsuariosArchivo();
-			 _ip = InetAddress.getLocalHost().getHostAddress();
 			_port = port;
-			_serverSocket = new ServerSocket(_port);
+			_usuarios = new ArrayList<Usuario>();
 			_usuariosConectados = new ArrayList<Usuario>();
 			_conexionesOutputUsuarios = new HashMap<String,ObjectOutputStream>();
 			_conexionesInputUsuarios = new HashMap<String, ObjectInputStream>();
+			
+			cargarUsuariosArchivo();
+			_monitor = new MonitorServidor(_usuarios, _usuariosConectados, _conexionesInputUsuarios, _conexionesOutputUsuarios);
+			
+			 _ip = InetAddress.getLocalHost().getHostAddress();
+			_serverSocket = new ServerSocket(_port);
+			System.out.println("----- Servidor " + _ip + " creado en el puerto " + _port);
 
 			while(true)
 			{	
-				
-				(new OyenteCliente(_serverSocket.accept(), this)).start();
+				(new OyenteCliente(_serverSocket.accept(), _monitor)).start();
 			}
-
 		}
 		catch(UnknownHostException e)
 		{
+			System.out.println("No se ha podido obtener la ip local.");
 			e.printStackTrace();
-			System.out.println("No se ha podido obtener la ip local. ");
 		}
 		catch(IOException e)
 		{
+			System.out.println("No se ha podido crear el servidor.");
 			e.printStackTrace();
-			System.out.println("No se ha podido crear el servidor. ");
 		}
 	}
 	
 	public void cargarUsuariosArchivo()
 	{
-		// LEEMOS DEL FICHERO USERS Y LO CARGAMOS en _USUARIOS
+		// LEEMOS DEL FICHERO USERS.TXT Y LO CARGAMOS en _USUARIOS
 
 		try {
 			FileInputStream fis = new FileInputStream("users.txt");      
@@ -84,108 +88,9 @@ public class Servidor {
 			sc.close();
 			
 		} catch (FileNotFoundException e) {
+			System.out.println("Fichero users.txt no ha sido encontrado.");
 			e.printStackTrace();
-			System.out.println("Fichero users.txt no ha sido encontrado. ");
 		} 
-	}
-
-	public Usuario obtenerUsuario(String nombreCliente)
-	{
-		Usuario user = null;
-		Boolean encontrado = false;
-		
-		for(int i = 0; i < _usuarios.size() && !encontrado; i++)
-		{
-			if(nombreCliente.equals(_usuarios.get(i).get_id()))
-			{
-				user = _usuarios.get(i);
-				encontrado = true;
-			}
-		}
-		
-		return user;
-	}
-	
-	public Usuario obtenerUsuarioConectado(String nombreCliente)
-	{
-		Usuario user = null;
-		boolean conectado = false;
-		
-		for(int i = 0; i < _usuariosConectados.size() && !conectado; i++)
-		{
-			if(nombreCliente.equals(_usuariosConectados.get(i).get_id()))
-			{
-				user = _usuariosConectados.get(i);
-				conectado = true;
-			}
-		}
-		return user;
-	}
-	
-	public boolean usuarioConectado(String usuario) 
-	{
-		boolean conectado = false;
-		if(obtenerUsuarioConectado(usuario) != null) conectado = true;
-		
-		return conectado;
-	}
-	
-	public synchronized void ficheroDescargadoPorUsuario(String nombreCliente, String nombreFichero) {
-		
-		// No actualizo la base de datos (solo los usuarios conectados) - Habria que modificar el archivo tambien para que sea completo
-		
-		boolean encontrado = false;
-		Usuario user = null;
-		int i = 0;
-		while(!encontrado && i < _usuariosConectados.size())
-		{
-			user = _usuariosConectados.get(i);
-			if(nombreCliente.equals(user.get_id()))
-			{
-				List<String> ficheros = user.get_ficheros();
-				ficheros.add(nombreFichero);
-				List<String> nuevosFich = new ArrayList<String>(ficheros);
-				
-				_usuariosConectados.add(new Usuario(user.get_id(),user.get_ip(), nuevosFich));
-				_usuariosConectados.remove(i);
-				encontrado = true;
-			}
-			i++;
-		}
-	}
-	
-	public synchronized void conexionUsuario(Usuario usuario, ObjectInputStream input, ObjectOutputStream output)
-	{
-		_usuariosConectados.add(usuario);
-		_conexionesInputUsuarios.put(usuario.get_id(), input);
-		_conexionesOutputUsuarios.put(usuario.get_id(), output);
-	}
-	
-	public synchronized void desconexionUsuario(Usuario usuario)
-	{
-		_usuariosConectados.remove(usuario);
-		_conexionesInputUsuarios.remove(usuario.get_id());
-		_conexionesOutputUsuarios.remove(usuario.get_id());
-	}
-
-	// GETTERS AND SETTERS
-	
-	public ObjectInputStream obtenerObjectInputSocket(String usuario)
-	{
-		return _conexionesInputUsuarios.get(usuario);
-	}
-	
-	public ObjectOutputStream obtenerObjectOutputSocket(String usuario)
-	{
-		return _conexionesOutputUsuarios.get(usuario);
-	}
-
-	public String obtenerNombreFichero(int posArchivo, String usuarioArchivo) {
-		return obtenerUsuarioConectado(usuarioArchivo).get_ficheros().get(posArchivo);
-	}
-	
-	public List<Usuario> get_usuariosConectados() {
-		return _usuariosConectados;
 	}
 
 	public static void main(String[] args) {

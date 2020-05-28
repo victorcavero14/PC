@@ -18,4 +18,9 @@ public class MensajePedirFichero extends Mensaje {
 	public int get_posArchivo() {
 		return _posArchivo;
 	}
+	
+	public String toString()
+	{
+		return "Solicitud del fichero " + _posArchivo + ", propiedad de " + _destino + " y para " + _origen;
+	}
 }
