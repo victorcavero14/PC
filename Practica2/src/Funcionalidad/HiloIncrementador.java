@@ -1,10 +1,10 @@
-package Funcionality;
-import LockImplementations.Lock;
+package Funcionalidad;
+import ImplementacionesLocks.Lock;
 
 public class HiloIncrementador extends Thread {
 	
-	public A _a;
-	public int _n;
+	public A _a; // variable compartida
+	public int _n; // numero de operaciones
 	Lock _lock;
 	
 	public HiloIncrementador(String string, A a, int N, Lock lock) {
@@ -24,6 +24,5 @@ public class HiloIncrementador extends Thread {
 			System.out.println("a = " + _a.get_var());
 			_lock.releaseLock();
 		}
-		
 	}
 }

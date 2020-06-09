@@ -1,10 +1,10 @@
-package Funcionality;
-import LockImplementations.Lock;
+package Funcionalidad;
+import ImplementacionesLocks.Lock;
 
 public class HiloDecrementador extends Thread{
 	
-	public A _a;
-	public int _n;
+	public A _a; // variable compartida
+	public int _n; // numero de operaciones
 	Lock _lock;
 	
 	public HiloDecrementador(String string, A a, int N, Lock lock) {
@@ -17,7 +17,7 @@ public class HiloDecrementador extends Thread{
 
 	public void run()
 	{		
-		for (int i= 0; i < _n; i++)
+		for(int i = 0; i < _n; i++)
 		{
 			_lock.takeLock();
 			_a.decrementa();

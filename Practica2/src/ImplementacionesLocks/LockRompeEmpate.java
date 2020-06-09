@@ -1,4 +1,4 @@
-package LockImplementations;
+package ImplementacionesLocks;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class LockRompeEmpate implements Lock{
@@ -7,9 +7,9 @@ public class LockRompeEmpate implements Lock{
 	// Necesario usar AtomicInteger para que el array sea volatitle y para evitar problemas con el código de la pizarra he omitido
 	// el 0 de los arrays. Sería más óptimo en espacio utilizarlo.
 
-    static volatile AtomicInteger[] in; // etapa en la que se encuentra cada proceso i
-    volatile AtomicInteger[] last; // identificador del proceso que llego ultilmo a la etapa i
-    final int N;
+    private volatile AtomicInteger[] in; // etapa en la que se encuentra cada proceso i
+    private volatile AtomicInteger[] last; // identificador del proceso que llego ultilmo a la etapa i
+    private int N;
 
     
     public LockRompeEmpate(int n)
@@ -26,9 +26,7 @@ public class LockRompeEmpate implements Lock{
     }
     
     public void takeLock() {
-    	
-    	Thread th = Thread.currentThread();
-    	int i = Integer.parseInt(th.getName());
+    	int i = Integer.parseInt(Thread.currentThread().getName());
     	
     	for(int j = 1; j <= N; j++)
     	{
@@ -45,8 +43,7 @@ public class LockRompeEmpate implements Lock{
     }
 
     public void releaseLock() {
-    	Thread th = Thread.currentThread();
-    	int i = Integer.parseInt(th.getName());
+    	int i = Integer.parseInt(Thread.currentThread().getName());
     	in[i].set(-1);;
     }
 

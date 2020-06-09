@@ -1,2 +1,3 @@
-# CP
-Concurrent Programming
+# PC
+
+Asignatura de programacion concurrente en la UCM.

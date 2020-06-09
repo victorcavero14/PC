@@ -1,39 +1,31 @@
-package Main;
+package Parte1;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import Funcionalidad.A;
-import Funcionalidad.HiloDecrementador;
-import Funcionalidad.HiloIncrementador;
-import ImplementacionesLocks.Lock;
-import ImplementacionesLocks.LockRompeEmpate;
-import ImplementacionesLocks.LockBakery;
-import ImplementacionesLocks.LockTicket;
+import java.util.concurrent.Semaphore;
 
 public class Main {
 
 	public static void main(String[] args) {
 
 		int N = 10000; // numero de operaciones cada proceso
-		int M = 6; // numero de procesos de un tipo (TOTAL PROCESOS 2*M)
-		Lock lock = new LockTicket(2*M);
+		int M = 12; // numero de procesos de un tipo (TOTAL PROCESOS 2*M)
+		
+		Semaphore sem = new Semaphore(1); // Actua como un LOCK
 
 		A a = new A();
 		List<Thread> hi = new ArrayList<Thread>();
 		List<Thread> hd = new ArrayList<Thread>();
 
-		// Hago los bucles de 1 en adelante porque los locks utlizan estas ids y estan
-		// diseñados para funcionar a partir de la 1
-		
 		for (int i = 1; i <= M; i++) {
-			HiloIncrementador hiloInc = new HiloIncrementador(Integer.toString(i), a, N, lock);
+			HiloIncrementador hiloInc = new HiloIncrementador(Integer.toString(i), a, N, sem);
 			hiloInc.start();
 			hi.add(hiloInc);
 		}
 		
 		for (int i = M+1; i <= 2*M; i++)
 		{
-			HiloDecrementador hiloDec = new HiloDecrementador(Integer.toString(i), a, N, lock);
+			HiloDecrementador hiloDec = new HiloDecrementador(Integer.toString(i), a, N, sem);
 			hiloDec.start();
 			hd.add(hiloDec);
 		}
