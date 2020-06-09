@@ -1,4 +1,4 @@
-package Parte2;
+package Parte2MultiBufferLockAndConditions;
 
 import java.util.Random;
 
@@ -25,8 +25,14 @@ public class Consumidor extends Thread {
 		{
 			if(r.nextInt() % 10 == 0) // 10% prob de consumir
 			{
-				_almacen.extraer();
-				i++;
+				int prods = r.nextInt() % (_nProductos-i+1);
+				
+				if(prods > 0)
+				{
+					_almacen.extraer(prods); // Extrae una cantidad aleatoria de productos
+					
+					i = i + prods;
+				}
 			}
 		}
 	}

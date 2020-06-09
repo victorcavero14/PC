@@ -1,4 +1,4 @@
-package Parte2;
+package Parte1ProductoresYConsumidores;
 
 import java.util.Random;
 
