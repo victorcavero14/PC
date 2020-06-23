@@ -1,14 +1,13 @@
-package Funcionalidad;
-import ImplementacionesLocks.Lock;
+package Parte2;
 
 public class HiloIncrementador extends Thread {
 	
-	public A _a; // variable compartida
-	public int _n; // numero de operaciones
-	Lock _lock;
+	private int _n; // numero de operaciones
+	
+	private volatile A _a; // variable compartida
+	private volatile Lock _lock;
 	
 	public HiloIncrementador(String string, A a, int N, Lock lock) {
-		
 		super(string);
 		_a = a;
 		_n = N;

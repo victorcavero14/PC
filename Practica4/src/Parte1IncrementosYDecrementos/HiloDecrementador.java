@@ -2,9 +2,9 @@ package Parte1IncrementosYDecrementos;
 
 public class HiloDecrementador extends Thread{
 	
-	public A _a; // variable compartida
-	public int _n; // numero de operaciones
-	MonitorHilos _monitor;
+	private volatile A _a; // variable compartida
+	private int _n; // numero de operaciones
+	private MonitorHilos _monitor;
 	
 	public HiloDecrementador(String string, A a, int N, MonitorHilos monitor) {
 		

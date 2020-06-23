@@ -3,7 +3,7 @@ package Parte1ProductoresYConsumidores;
 import java.util.Random;
 
 public class Consumidor extends Thread {
-	private Almacen _almacen;
+	private volatile Almacen _almacen;
 	private int _nProductos;
 	
 	// Para que los hilos consumidores acaben "_nProductos" , podria quitarse la variable y hacerlos while(true) 

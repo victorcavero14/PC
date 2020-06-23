@@ -5,8 +5,8 @@ import java.util.concurrent.Semaphore;
 public class AlmacenUnProducto implements Almacen {
 	
 	private volatile Producto _producto;
-	private Semaphore _vacio;
-	private Semaphore _lleno;
+	private volatile Semaphore _vacio;
+	private volatile Semaphore _lleno;
 	
 	public AlmacenUnProducto()
 	{

@@ -1,4 +1,4 @@
-package ImplementacionesLocks;
+package Parte2;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class LockTicket implements Lock{
@@ -13,7 +13,7 @@ public class LockTicket implements Lock{
     	next = new AtomicInteger(1);
     	
     	turn = new AtomicInteger[n+1];
-    	for(int i = 1; i <= n; i++)
+    	for(int i = 0; i < n; i++)
     	{
     		turn[i] = new AtomicInteger();
     	}

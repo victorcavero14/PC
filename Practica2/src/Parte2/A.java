@@ -1,8 +1,8 @@
-package Funcionalidad;
+package Parte2;
 
 public class A {
 	
-	public int _var = 0;
+	private volatile int _var = 0;
 
 	public void decrementa()
 	{

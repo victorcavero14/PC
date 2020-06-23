@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Random;
 
 public class Productor extends Thread {
-	private Almacen _almacen;
+	private volatile Almacen _almacen;
 	private int _nProductos; // Productos que va a producir el productor
 	
 	public Productor(String nombre, Almacen almacen, int nProductos)

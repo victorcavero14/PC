@@ -1,14 +1,7 @@
-package Main;
+package Parte2;
 import java.util.ArrayList;
 import java.util.List;
 
-import Funcionalidad.A;
-import Funcionalidad.HiloDecrementador;
-import Funcionalidad.HiloIncrementador;
-import ImplementacionesLocks.Lock;
-import ImplementacionesLocks.LockRompeEmpate;
-import ImplementacionesLocks.LockBakery;
-import ImplementacionesLocks.LockTicket;
 
 public class Main {
 
@@ -21,17 +14,14 @@ public class Main {
 		A a = new A();
 		List<Thread> hi = new ArrayList<Thread>();
 		List<Thread> hd = new ArrayList<Thread>();
-
-		// Hago los bucles de 1 en adelante porque los locks utlizan estas ids y estan
-		// diseñados para funcionar a partir de la 1
 		
-		for (int i = 1; i <= M; i++) {
+		for (int i = 0; i < M; i++) {
 			HiloIncrementador hiloInc = new HiloIncrementador(Integer.toString(i), a, N, lock);
 			hiloInc.start();
 			hi.add(hiloInc);
 		}
 		
-		for (int i = M+1; i <= 2*M; i++)
+		for (int i = M; i < 2*M; i++)
 		{
 			HiloDecrementador hiloDec = new HiloDecrementador(Integer.toString(i), a, N, lock);
 			hiloDec.start();

@@ -8,9 +8,9 @@ public class AlmacenVariosProductos implements Almacen {
 	
 	private int _n; // Productos que son posibles almacenar en el almacen
 	private volatile List<Producto> _productos;
-	private Semaphore _vacio;
-	private Semaphore _lleno;
-	private Semaphore _sincro; // Sincroniza el acceso a la lista uno cada vez
+	private volatile Semaphore _vacio;
+	private volatile Semaphore _lleno;
+	private volatile Semaphore _sincro; // Sincroniza el acceso a la lista uno cada vez
 	
 	public AlmacenVariosProductos(int n)
 	{

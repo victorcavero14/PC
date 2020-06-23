@@ -37,6 +37,9 @@ public class Main {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		
+		System.out.println("MAIN : La ejecucion de los hilos ha terminado correctamente");
+
 	}
 
 }

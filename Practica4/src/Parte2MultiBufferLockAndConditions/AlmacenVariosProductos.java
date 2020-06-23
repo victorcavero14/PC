@@ -11,9 +11,9 @@ public class AlmacenVariosProductos implements Almacen {
 	private int _n; // Productos que son posibles almacenar en el almacen
 	private volatile List<Producto> _productos;
 	
-	private Lock _lock;
-	private Condition _prods;
-	private Condition _hueco;
+	private volatile Lock _lock;
+	private volatile Condition _prods;
+	private volatile Condition _hueco;
 	
 	public AlmacenVariosProductos(int n)
 	{

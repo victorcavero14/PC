@@ -1,20 +1,19 @@
 package Parte1;
 
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class HiloDecrementador extends Thread{
 	
 	private int _n; // numero de operaciones
 	
 	private volatile A _a; // variable compartida
-	private volatile Semaphore _sem;
+	private volatile AtomicBoolean _lock; // variable booleana de sincronizacion 
 	
-	public HiloDecrementador(String string, A a, int N, Semaphore sem) {
-		
+	public HiloDecrementador(String string, A a, int N, AtomicBoolean lock) {
 		super(string);
 		_a = a;
 		_n = N;
-		_sem = sem;
+		_lock = lock;
 	}
 
 	public void run()
@@ -22,13 +21,20 @@ public class HiloDecrementador extends Thread{
 		for(int i = 0; i < _n; i++)
 		{
 			try {
-				_sem.acquire();
+				while(_lock.get()) sleep(100);
+				while(_lock.getAndSet(true))
+				{
+					while(_lock.get()) sleep(100); 
+				}
+				
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+			
 			_a.decrementa();
 			System.out.println("a = " + _a.get_var());
-			_sem.release();
+			
+			_lock.set(false);
 		}
 	}
 }

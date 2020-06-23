@@ -1,4 +1,4 @@
-package ImplementacionesLocks;
+package Parte2;
 
 public interface Lock {
 	
