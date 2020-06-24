@@ -8,7 +8,7 @@ public class Main {
 
 		int N = 10; // Numero de procesos de cada tipo (TOTAL 2*N)
 		int PRODUCTOS = 10; // Productos generados y consumidos por los respectivos hilos
-		int TAM_ALMACEN = 20; // Tamaño maximo de productos que puede albergar el almacen
+		int TAM_ALMACEN = 20; // Tamaï¿½o maximo de productos que puede albergar el almacen
 
 		//Almacen almacen = new AlmacenUnProducto();
 		Almacen almacen = new AlmacenVariosProductos(TAM_ALMACEN);
